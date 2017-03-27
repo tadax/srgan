@@ -12,7 +12,7 @@ with TensorFlow.
 
 # Usage
 
-## I. Pre-train the VGG-19 model.
+## I. Pretrain the VGG-19 model.
 
 Download the dataset with:
 
@@ -35,7 +35,7 @@ $ python vgg19/train.py
 The pretrained VGG-19 model will be stored in [vgg19/model].
 
 
-## II. Train SRGAN (SR ResNet + VGG + Discriminator) model.
+## II. Train the SRGAN (ResNet-Generator and Discriminator) model.
 
 Download the dataset with:
 
