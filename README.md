@@ -32,7 +32,7 @@ Train with:
 $ python vgg19/train.py
 ```
 
-You will get the pretrained VGG-19 model in the directory [vgg19/model/](vgg19/model/).
+The pretrained VGG-19 model will be stored in [vgg19/model].
 
 
 ## II. Train SRGAN (SR ResNet + VGG + Discriminator) model.
@@ -55,15 +55,15 @@ Train with:
 $ python srgan/train.py
 ```
 
-The result will be stored in the directory [srgan/result/](srgan/result/).
+The result will be stored in [srgan/result/].
 
 
 # Results
 
 ## LFW
 
-![result1](sample/1.jpg)
+![result1](results/1.jpg)
 
-![result2](sample/2.jpg)
+![result2](results/2.jpg)
 
-![result3](sample/3.jpg)
+![result3](results/3.jpg)
