@@ -88,6 +88,7 @@ if __name__ == "__main__":
         shutil.rmtree(temp_dir)
     os.mkdir(temp_dir)
 
-    data = Data(img_dim=96)
+    img_dim = 96
+    data = Data(img_dim=img_dim)
     data.preprocess()
 
