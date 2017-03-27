@@ -62,8 +62,8 @@ The result will be stored in [srgan/result/].
 
 ## LFW
 
-![result1](results/1.jpg)
+![result1](results/1.png)
 
-![result2](results/2.jpg)
+![result2](results/2.png)
 
-![result3](results/3.jpg)
+![result3](results/3.png)
