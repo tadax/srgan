@@ -1,0 +1,11 @@
+vgg19/cifar_100/raw/*
+vgg19/cifar_100/train/*
+vgg19/cifar_100/test/*
+vgg19/model/*
+src/lfw/raw/*
+src/lfw/train/*
+src/lfw/test/*
+src/model/*
+src/result/*
+class.txt
+!.gitkeep
