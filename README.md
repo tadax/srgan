@@ -6,9 +6,10 @@ with TensorFlow.
 
 # Requirements
 
+- Python 3
 - TensorFlow
 - OpenCV
-- dilb
+- dlib
 
 # Usage
 
