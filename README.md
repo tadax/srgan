@@ -33,7 +33,7 @@ Train with:
 $ python vgg19/train.py
 ```
 
-The pretrained VGG-19 model will be stored in [vgg19/model].
+The pretrained VGG-19 model will be stored in [vgg19/model]().
 
 
 ## II. Train the SRGAN (ResNet-Generator and Discriminator) model.
@@ -56,7 +56,7 @@ Train with:
 $ python srgan/train.py
 ```
 
-The result will be stored in [srgan/result/].
+The result will be stored in [src/result]().
 
 
 # Results
