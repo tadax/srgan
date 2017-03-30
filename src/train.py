@@ -8,6 +8,8 @@ from tqdm import tqdm
 
 import sys
 sys.path.append('../utils')
+
+from load import load
 from augment import IMG
 from srgan import SRGAN
 
@@ -16,7 +18,7 @@ batch_size = 32
 img_dim = 96
 IMG = IMG(normalized=True, flip=True, brightness=False, cropping=False, blur=False)
 
-vgg_model = '../vgg19/model/epoch_50'
+vgg_model = '../vgg19/model/backup'
 
 def train():
     print('... building')
@@ -47,15 +49,15 @@ def train():
         saver.restore(sess, last_model)
 
     print('... loading')
-    x_train = load('.lfw/train')
-    x_test = load('.lfw/test')
+    x_train = load('lfw/train')
+    x_test = load('lfw/test')
     n_train = x_train.shape[0]
     n_test = x_test.shape[0]
     print(x_train.shape)
     print(x_test.shape)
 
     print('... training')
-    n_iter = n_train / batch_size if n_train % batch_size == 0 else n_train // batch_size + 1
+    n_iter = n_train // batch_size if n_train % batch_size == 0 else n_train // batch_size + 1
     while True:
         epoch = int(sess.run(global_step) / n_iter / 2)
         print('----- epoch {} -----'.format(epoch+1))
@@ -81,17 +83,6 @@ def train():
         print('... saving the model')
         saver = tf.train.Saver()
         saver.save(sess, 'model/backup', write_meta_graph=False)
-
-
-def load():
-    x = []; t = []
-    paths = glob.glob(os.path.join(dir_, '*'))
-    for path in paths:
-        bgr_img = cv2.imread(path)
-        rbg_img = cv2.cvtColor(bgr_img, cv2.COLOR_BGR2RGB)
-        img = np.array(rbg_img) / 127.5 - 1
-        x.append(img)
-    return np.array(x)
 
 
 def validate(x_test, epoch, model, sess):

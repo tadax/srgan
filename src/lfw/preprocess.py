@@ -19,29 +19,33 @@ class Data:
 
     def detect_faces(self, img):
         dets = self.detector(img, 1)
-        if dets is None or len(dets) > 1:
+        if dets is None or len(dets) != 1:
             return None
         h_img, w_img = img.shape[:2]
         det = dets[0]
-        if (int(det.left()) < 0 or int(det.top()) < 0 or int(det.right()) > w_img or int(det.bottom()) > h_img:
-            continue
+        if int(det.left()) < 0 or int(det.top()) < 0 or int(det.right()) > w_img or int(det.bottom()) > h_img:
+            return None
         cropped_img = img[det.top():det.bottom(), det.left():det.right()]
-        return cv2.resize(cropped_img, (self.dim, self.dim))
+        return cv2.resize(cropped_img, (self.img_dim, self.img_dim))
 
     def preprocess(self):
-        persons = glob.glob('lfw/*') 
+        persons = glob.glob('raw/*') 
+        persons.sort()
         for l, person in enumerate(persons):
             l_ = "{0:09d}".format(l)
             paths = glob.glob(os.path.join(person, '*'))
-            for l, path in enumerate(glob.glob(os.path.join(person, '*'))):
+            paths.sort()
+            for i, path in enumerate(glob.glob(os.path.join(person, '*'))):
                 i_ = "{0:04d}".format(i) 
                 bgr_img = cv2.imread(path) 
-                rgb_img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+                rgb_img = cv2.cvtColor(bgr_img, cv2.COLOR_BGR2RGB)
                 face = self.detect_faces(rgb_img)
                 if face is not None:
+                    print(path)
                     name = "{}_{}.jpg".format(l_, i_)
                     path = os.path.join(temp_dir, name)
                     scipy.misc.imsave(path, np.uint8(face))
+        self.split_into_train_and_test()
 
     def split_into_train_and_test(self):
         images = np.array([os.path.basename(p) for p in glob.glob(os.path.join(temp_dir, '*'))])
@@ -56,13 +60,11 @@ class Data:
                 data_list[person] = [image]
         n_classes = 0
         for person, data in data_list.items():
-            n = int(len(data) * (1 - self.ratio))
+            n = int(len(data) * self.ratio)
             if n < 1:
                 continue
             else:
                 n_classes += 1
-            print("{}: train = {}, test = {}".format(person, len(data)-n, n))
-            data.sort()
             for l in data[:n]:
                 src = os.path.join(temp_dir, l)
                 dst = os.path.join(test_dir, l)
@@ -72,12 +74,9 @@ class Data:
                 dst = os.path.join(train_dir, l)
                 shutil.move(src, dst)
         shutil.rmtree(temp_dir)
-        print("class num: {}".format(n_classes))
 
 
 if __name__ == "__main__":
-    if input("Are you sure to make data newly? (y/n)\n") != 'y':
-        exit()
     if os.path.exists(train_dir):
         shutil.rmtree(train_dir)
     os.mkdir(train_dir)

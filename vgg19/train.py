@@ -5,6 +5,8 @@ from vgg19 import VGG19
 
 import sys
 sys.path.append('../utils')
+
+from load import load
 from augment import IMG
 IMG = IMG(normalized=True, flip=True, brightness=True, cropping=True, blur=True)
 
@@ -30,8 +32,8 @@ def train():
         saver.restore(sess, last_model)
 
     print('... loading')
-    x_train, t_train = load_data('./cifar_100/train')
-    x_test, t_test = load_data('./cifar_100/test')
+    x_train, t_train = load('./cifar_100/train')
+    x_test, t_test = load('./cifar_100/test')
     n_train = x_train.shape[0]
     n_test = x_test.shape[0]
 
@@ -47,7 +49,7 @@ def train():
         for i in tqdm(range(n_iter)):
             x_batch = x_train[i*batch_size:(i+1)*batch_size]
             t_batch = t_train[i*batch_size:(i+1)*batch_size]
-            x_batch = IMG.augment(n_iter)
+            x_batch = IMG.augment(x_batch)
             feed_dict = {model.x: x_batch.astype(np.float32), model.t: t_batch.astype(np.float32)}
             optimizer.run(feed_dict=feed_dict, session=sess)
             loss_value = model.loss.eval(feed_dict=feed_dict, session=sess)
@@ -64,19 +66,6 @@ def train():
         saver.save(sess, 'model/backup', write_meta_graph=False)
 
 
-def load():
-    x = []; t = []
-    paths = glob.glob(os.path.join(dir_, '*'))
-    for path in paths:
-        bgr_img = cv2.imread(path)
-        rbg_img = cv2.cvtColor(bgr_img, cv2.COLOR_BGR2RGB)
-        img = np.array(rbg_img) / 127.5 - 1
-        label = os.path.basename(path).split('_')[0]
-        x.append(img)
-        t.append(label)
-    return (np.array(x), np.array(t))
-
-
 def validate(x, t, n, model, sess):
     prediction = np.array([])
     answer = np.array([])
@@ -84,7 +73,7 @@ def validate(x, t, n, model, sess):
         x_batch = x[i:i+batch_size]
         t_batch = t[i:i+batch_size]
         x_batch = IMG.augment(x_batch)
-        output = model.prob.eval(feed_dict={model.x: x_batch.astype(np.float32)}, session=sess)
+        output = model.out.eval(feed_dict={model.x: x_batch.astype(np.float32)}, session=sess)
         prediction = np.concatenate([prediction, np.argmax(output, 1)])
         answer = np.concatenate([answer, t_batch])
         correct_prediction = np.equal(prediction, answer)

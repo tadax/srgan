@@ -20,98 +20,98 @@ class VGG19:
             with tf.variable_scope('conv1a'):
                 x = conv_layer(x, [3, 3, 3, 64], 1, self.trainable)
                 x = batch_normalize(x, self.trainable)
-                x = lrelu(x, self.trainable)
+                x = lrelu(x)
             with tf.variable_scope('conv1b'):
                 x = conv_layer(x, [3, 3, 64, 64], 1, self.trainable)
                 x = batch_normalize(x, self.trainable)
-                x = lrelu(x, self.trainable)
+                x = lrelu(x)
             phi.append(x)
 
             x = max_pooling_layer(x, 2, 2)
             with tf.variable_scope('conv2a'):
                 x = conv_layer(x, [3, 3, 64, 128], 1, self.trainable)
                 x = batch_normalize(x, self.trainable)
-                x = lrelu(x, self.trainable)
+                x = lrelu(x)
             with tf.variable_scope('conv2b'):
                 x = conv_layer(x, [3, 3, 128, 128], 1, self.trainable)
                 x = batch_normalize(x, self.trainable)
-                x = lrelu(x, self.trainable)
+                x = lrelu(x)
             phi.append(x)
 
             x = max_pooling_layer(x, 2, 2)
             with tf.variable_scope('conv3a'):
                 x = conv_layer(x, [3, 3, 128, 256], 1, self.trainable)
                 x = batch_normalize(x, self.trainable)
-                x = lrelu(x, self.trainable)
+                x = lrelu(x)
             with tf.variable_scope('conv3b'):
                 x = conv_layer(x, [3, 3, 256, 256], 1, self.trainable)
                 x = batch_normalize(x, self.trainable)
-                x = lrelu(x, self.trainable)
+                x = lrelu(x)
             with tf.variable_scope('conv3c'):
                 x = conv_layer(x, [3, 3, 256, 512], 1, self.trainable)
                 x = batch_normalize(x, self.trainable)
-                x = lrelu(x, self.trainable)
+                x = lrelu(x)
             phi.append(x)
 
             x = max_pooling_layer(x, 2, 2)
             with tf.variable_scope('conv4a'):
                 x = conv_layer(x, [3, 3, 512, 512], 1, self.trainable)
                 x = batch_normalize(x, self.trainable)
-                x = lrelu(x, self.trainable)
+                x = lrelu(x)
             with tf.variable_scope('conv4b'):
                 x = conv_layer(x, [3, 3, 512, 512], 1, self.trainable)
                 x = batch_normalize(x, self.trainable)
-                x = lrelu(x, self.trainable)
+                x = lrelu(x)
             with tf.variable_scope('conv4c'):
                 x = conv_layer(x, [3, 3, 512, 512], 1, self.trainable)
                 x = batch_normalize(x, self.trainable)
-                x = lrelu(x, self.trainable)
+                x = lrelu(x)
             phi.append(x)
 
             x = max_pooling_layer(x, 2, 2)
             with tf.variable_scope('conv5a'):
                 x = conv_layer(x, [3, 3, 512, 512], 1, self.trainable)
                 x = batch_normalize(x, self.trainable)
-                x = lrelu(x, self.trainable)
+                x = lrelu(x)
             with tf.variable_scope('conv5b'):
                 x = conv_layer(x, [3, 3, 512, 512], 1, self.trainable)
                 x = batch_normalize(x, self.trainable)
-                x = lrelu(x, self.trainable)
+                x = lrelu(x)
             with tf.variable_scope('conv5c'):
                 x = conv_layer(x, [3, 3, 512, 512], 1, self.trainable)
                 x = batch_normalize(x, self.trainable)
-                x = lrelu(x, self.trainable)
+                x = lrelu(x)
             phi.append(x)
 
             x = max_pooling_layer(x, 2, 2)
             with tf.variable_scope('conv6a'):
                 x = conv_layer(x, [3, 3, 512, 512], 1, self.trainable)
                 x = batch_normalize(x, self.trainable)
-                x = lrelu(x, self.trainable)
+                x = lrelu(x)
             with tf.variable_scope('conv6b'):
                 x = conv_layer(x, [3, 3, 512, 512], 1, self.trainable)
                 x = batch_normalize(x, self.trainable)
-                x = lrelu(x, self.trainable)
+                x = lrelu(x)
             with tf.variable_scope('conv6c'):
                 x = conv_layer(x, [3, 3, 512, 512], 1, self.trainable)
                 x = batch_normalize(x, self.trainable)
-                x = lrelu(x, self.trainable)
+                x = lrelu(x)
             phi.append(x)
 
             x = flatten_layer(x)
             with tf.variable_scope('fc1'):
                 x = full_connection_layer(x, 4096, self.trainable)
-                x = lrelu(x, self.trainable)
+                x = lrelu(x)
             with tf.variable_scope('fc2'):
                 x = full_connection_layer(x, 4096, self.trainable)
-                x = lrelu(x, self.trainable)
+                x = lrelu(x)
             with tf.variable_scope('softmax'):
                 x = full_connection_layer(x, self.n_class, self.trainable)
 
             return x, phi
 
 
-    def inference_loss(self):
-        loss = tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(self.out, self.t)
+    def inference_loss(self, out, t):
+        loss = tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(out, t))
         return loss
 

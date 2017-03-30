@@ -8,4 +8,5 @@ src/lfw/test/*
 src/model/*
 src/result/*
 class.txt
+__pycache__
 !.gitkeep
