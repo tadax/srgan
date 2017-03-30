@@ -13,6 +13,3 @@ def load(dir_):
         x.append(img)
     return np.array(x)
 
-if __name__ == '__main__':
-    x = load('./lfw/train')
-    print(x.shape)
