@@ -7,7 +7,7 @@ from tqdm import tqdm
 from load import load
 from srgan import SRGAN
 
-learning_rate = 1e-4
+learning_rate = 1e-3
 batch_size = 32
 img_dim = 96
 
