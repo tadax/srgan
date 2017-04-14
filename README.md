@@ -106,6 +106,30 @@ After 20 epochs
 
 ![result20](results/000000020.jpg)
 
+![result21](results/000000021.jpg)
+
+![result22](results/000000022.jpg)
+
+![result23](results/000000023.jpg)
+
+![result24](results/000000024.jpg)
+
+![result25](results/000000025.jpg)
+
+![result26](results/000000026.jpg)
+
+![result27](results/000000027.jpg)
+
+![result28](results/000000028.jpg)
+
+![result29](results/000000029.jpg)
+
+![result30](results/000000030.jpg)
+
+![result31](results/000000031.jpg)
+
+![result32](results/000000032.jpg)
+
 
 # Appendix
 
