@@ -9,19 +9,19 @@ from vgg19 import VGG19
 vgg = VGG19(False)
 
 class SRGAN:
-    def __init__(self, trainable=True):
+    def __init__(self):
         self.K = 4
         self.img_dim = 96
         self.batch_size = 32
-        self.trainable = trainable
         self.x = tf.placeholder(tf.float32, [self.batch_size, self.img_dim, self.img_dim, 3])
+        self.is_training = tf.placeholder(tf.bool)
         self.downscaled = self.downscale(self.x)
-        self.imitation = self.generator(self.downscaled, False)
-        self.true_output = self.discriminator(self.x, False)
-        self.fake_output = self.discriminator(self.imitation, True)
+        self.imitation = self.generator(self.downscaled, self.is_training, False)
+        self.true_output = self.discriminator(self.x, self.is_training, False)
+        self.fake_output = self.discriminator(self.imitation, self.is_training, True)
         self.g_loss, self.d_loss = self.inference_losses(self.x, self.imitation, self.true_output, self.fake_output)
 
-    def generator(self, x, reuse=False):
+    def generator(self, x, is_training, reuse):
         with tf.variable_scope('generator', reuse=reuse):
             with tf.variable_scope('deconv1'):
                 x = deconv_layer(x, [3, 3, 64, 3], [self.batch_size, 24, 24, 64], 1, 'deconv1')
@@ -31,15 +31,15 @@ class SRGAN:
                 mid = x
                 with tf.variable_scope('block{}a'.format(i+1)):
                     x = deconv_layer(x, [3, 3, 64, 64], [self.batch_size, 24, 24, 64], 1)
-                    x = batch_normalize(x, self.trainable)
+                    x = batch_normalize(x, is_training)
                     x = tf.nn.relu(x)
                 with tf.variable_scope('block{}b'.format(i+1)):
                     x = deconv_layer(x, [3, 3, 64, 64], [self.batch_size, 24, 24, 64], 1)
-                    x = batch_normalize(x, self.trainable)
+                    x = batch_normalize(x, is_training)
                 x = tf.add(x, mid)
             with tf.variable_scope('deconv2'):
                 x = deconv_layer(x, [3, 3, 64, 64], [self.batch_size, 24, 24, 64], 1)
-                x = batch_normalize(x, self.trainable)
+                x = batch_normalize(x, is_training)
                 x = tf.add(x, shortcut)
             with tf.variable_scope('deconv3'):
                 x = deconv_layer(x, [3, 3, 256, 64], [self.batch_size, 24, 24, 256], 1)
@@ -56,7 +56,7 @@ class SRGAN:
         return x
 
 
-    def discriminator(self, x, reuse=False):
+    def discriminator(self, x, is_training, reuse):
         with tf.variable_scope('discriminator', reuse=reuse):
             with tf.variable_scope('conv1'):
                 x = conv_layer(x, [3, 3, 3, 64], 1)
@@ -64,31 +64,31 @@ class SRGAN:
             with tf.variable_scope('conv2'):
                 x = conv_layer(x, [3, 3, 64, 64], 2)
                 x = lrelu(x)
-                x = batch_normalize(x, self.trainable)
+                x = batch_normalize(x, is_training)
             with tf.variable_scope('conv3'):
                 x = conv_layer(x, [3, 3, 64, 128], 1)
                 x = lrelu(x)
-                x = batch_normalize(x, self.trainable)
+                x = batch_normalize(x, is_training)
             with tf.variable_scope('conv4'):
                 x = conv_layer(x, [3, 3, 128, 128], 2)
                 x = lrelu(x)
-                x = batch_normalize(x, self.trainable)
+                x = batch_normalize(x, is_training)
             with tf.variable_scope('conv5'):
                 x = conv_layer(x, [3, 3, 128, 256], 1)
                 x = lrelu(x)
-                x = batch_normalize(x, self.trainable)
+                x = batch_normalize(x, is_training)
             with tf.variable_scope('conv6'):
                 x = conv_layer(x, [3, 3, 256, 256], 2)
                 x = lrelu(x)
-                x = batch_normalize(x, self.trainable)
+                x = batch_normalize(x, is_training)
             with tf.variable_scope('conv7'):
                 x = conv_layer(x, [3, 3, 256, 512], 1)
                 x = lrelu(x)
-                x = batch_normalize(x, self.trainable)
+                x = batch_normalize(x, is_training)
             with tf.variable_scope('conv8'):
                 x = conv_layer(x, [3, 3, 512, 512], 2)
                 x = lrelu(x)
-                x = batch_normalize(x, self.trainable)
+                x = batch_normalize(x, is_training)
             x = flatten_layer(x)
             with tf.variable_scope('fc'):
                 x = full_connection_layer(x, 1024)
@@ -113,18 +113,21 @@ class SRGAN:
 
     def inference_losses(self, x, imitation, true_output, fake_output):
         def inference_content_loss(x, imitation):
-            _, x_phi = vgg.build_model(x, True)
-            _, imitation_phi = vgg.build_model(imitation, True)
-            content_loss = 0
+            _, x_phi = vgg.build_model(x, None, True)
+            _, imitation_phi = vgg.build_model(imitation, None, True)
+            content_loss = None
             for i in range(len(x_phi)):
-                content_loss = content_loss + tf.reduce_mean(tf.nn.l2_loss(x_phi[i] - imitation_phi[i]))
-            return content_loss
+                if content_loss is None:
+                    content_loss = tf.nn.l2_loss(x_phi[i] - imitation_phi[i])
+                else:
+                    content_loss = content_loss + tf.nn.l2_loss(x_phi[i] - imitation_phi[i])
+            return tf.reduce_mean(content_loss)
 
         def inference_adversarial_loss(true_output, fake_output):
-            alpha = 1e-4
-            g_loss = tf.reduce_mean(tf.nn.l2_loss(fake_output - tf.ones([self.batch_size])))
-            d_loss_real = tf.reduce_mean(tf.nn.l2_loss(true_output - tf.ones([self.batch_size])))
-            d_loss_fake = tf.reduce_mean(tf.nn.l2_loss(fake_output + tf.ones([self.batch_size])))
+            alpha = 1e-5
+            g_loss = tf.reduce_mean(tf.nn.l2_loss(fake_output - tf.ones_like(fake_output)))
+            d_loss_real = tf.reduce_mean(tf.nn.l2_loss(true_output - tf.ones_like(true_output)))
+            d_loss_fake = tf.reduce_mean(tf.nn.l2_loss(fake_output + tf.ones_like(fake_output)))
             d_loss = d_loss_real + d_loss_fake
             return (g_loss * alpha, d_loss * alpha)
 

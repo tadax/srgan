@@ -33,14 +33,21 @@ def full_connection_layer(x, out_dim, trainable=True):
     out = tf.nn.bias_add(tf.matmul(x, W), b)
     return out
 
-def batch_normalize(x, trainable=True):
+def batch_normalize(x, is_training, decay=0.99, epsilon=0.001, trainable=True):
     input_shape = x.get_shape().as_list()
     dim = input_shape[3]
     beta = tf.get_variable('beta', dtype=tf.float32, shape=[dim], initializer=tf.truncated_normal_initializer(stddev=0.0), trainable=trainable)
-    gamma = tf.get_variable('gamma', dtype=tf.float32, shape=[dim], initializer=tf.truncated_normal_initializer(stddev=0.1), trainable=trainable)
-    mean, var = tf.nn.moments(x, axes=[0, 1, 2])
-    out = tf.nn.batch_normalization(x, mean, var, beta, gamma, 0.001)
-    return out
+    scale = tf.get_variable('scale', dtype=tf.float32, shape=[dim], initializer=tf.truncated_normal_initializer(stddev=0.1), trainable=trainable)
+    pop_mean = tf.get_variable('pop_mean', dtype=tf.float32, shape=[dim], initializer=tf.constant_initializer(0.0), trainable=False)
+    pop_var = tf.get_variable('pop_var', dtype=tf.float32, shape=[dim], initializer=tf.constant_initializer(1.0), trainable=False)
+    if is_training is not None:
+        mean, var = tf.nn.moments(x, axes=[0, 1, 2])
+        batch_mean, batch_var = tf.nn.moments(x, axes=[0, 1, 2])
+        tf.assign(pop_mean, pop_mean * decay + batch_mean * (1 - decay))
+        tf.assign(pop_var, pop_var * decay + batch_var * (1 - decay))
+        return tf.nn.batch_normalization(x, batch_mean, batch_var, beta, scale, epsilon)
+    else:
+        return tf.nn.batch_normalization(x, pop_mean, pop_var, beta, scale, epsilon)
                                                                                                             
 def flatten_layer(x):
     input_shape = x.get_shape().as_list()
