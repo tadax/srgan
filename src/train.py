@@ -59,7 +59,7 @@ def train():
 
 def validate(x_test, epoch, model, sess):
     raw = x_test[:batch_size]
-    mos, fake = sess.run([model.downscaled, model.imitation], feed_dict={model.x: raw})
+    mos, fake = sess.run([model.downscaled, model.imitation], feed_dict={model.x: raw, model.is_training: False})
     saveimg([mos, fake, raw], ['Input', 'Output', 'Ground Truth'], epoch)
 
 

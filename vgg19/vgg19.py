@@ -11,7 +11,7 @@ class VGG19:
         self.trainable = trainable
         self.x = tf.placeholder(tf.float32, [None, self.img_dim, self.img_dim, 3])
         self.t = tf.placeholder(tf.int32, [None])     
-        self.is_training = tf.placeholder(tf.bool)
+        self.is_training = tf.placeholder(tf.bool, [])
         self.out, self.phi = self.build_model(self.x, self.is_training)
         self.loss = self.inference_loss(self.out, self.t)
 

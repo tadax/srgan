@@ -40,15 +40,16 @@ def batch_normalize(x, is_training, decay=0.99, epsilon=0.001, trainable=True):
     scale = tf.get_variable('scale', dtype=tf.float32, shape=[dim], initializer=tf.truncated_normal_initializer(stddev=0.1), trainable=trainable)
     pop_mean = tf.get_variable('pop_mean', dtype=tf.float32, shape=[dim], initializer=tf.constant_initializer(0.0), trainable=False)
     pop_var = tf.get_variable('pop_var', dtype=tf.float32, shape=[dim], initializer=tf.constant_initializer(1.0), trainable=False)
-    if is_training is not None:
-        mean, var = tf.nn.moments(x, axes=[0, 1, 2])
+    def bn_train():
         batch_mean, batch_var = tf.nn.moments(x, axes=[0, 1, 2])
-        tf.assign(pop_mean, pop_mean * decay + batch_mean * (1 - decay))
-        tf.assign(pop_var, pop_var * decay + batch_var * (1 - decay))
-        return tf.nn.batch_normalization(x, batch_mean, batch_var, beta, scale, epsilon)
-    else:
+        train_mean = tf.assign(pop_mean, pop_mean * decay + batch_mean * (1 - decay))
+        train_var = tf.assign(pop_var, pop_var * decay + batch_var * (1 - decay))
+        with tf.control_dependencies([train_mean, train_var]):
+            return tf.nn.batch_normalization(x, batch_mean, batch_var, beta, scale, epsilon)
+    def bn_inference():
         return tf.nn.batch_normalization(x, pop_mean, pop_var, beta, scale, epsilon)
-                                                                                                            
+    return tf.cond(is_training, bn_train, bn_inference)
+
 def flatten_layer(x):
     input_shape = x.get_shape().as_list()
     dim = input_shape[1] * input_shape[2] * input_shape[3]

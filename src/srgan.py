@@ -113,8 +113,8 @@ class SRGAN:
 
     def inference_losses(self, x, imitation, true_output, fake_output):
         def inference_content_loss(x, imitation):
-            _, x_phi = vgg.build_model(x, None, True)
-            _, imitation_phi = vgg.build_model(imitation, None, True)
+            _, x_phi = vgg.build_model(x, tf.constant(False), True)
+            _, imitation_phi = vgg.build_model(imitation, tf.constant(False), True)
             content_loss = None
             for i in range(len(x_phi)):
                 if content_loss is None:

@@ -22,7 +22,7 @@ def train():
     train_op = opt.minimize(model.loss, global_step=global_step)
     init = tf.global_variables_initializer()
     sess.run(init)
-    
+
     if tf.train.get_checkpoint_state('backup/'):
         saver = tf.train.Saver()
         saver.restore(sess, 'backup/latest')
@@ -30,7 +30,7 @@ def train():
     x_train, t_train = load('./cifar_100/train')
     x_test, t_test = load('./cifar_100/test')
 
-    n_iter = np.int64(np.ceil(len(x_train) / batch_size))
+    n_iter = int(np.ceil(len(x_train) / batch_size))
     while True:
         epoch = int(sess.run(global_step) / n_iter)
         print('----- epoch {} -----'.format(epoch+1))
@@ -52,19 +52,19 @@ def train():
         print('accuracy: {} %'.format(test_accuracy * 100))
 
 
-
 def validate(x, t, model, sess):
     prediction = np.array([])
     answer = np.array([])
     for i in range(0, len(x), batch_size):
         x_batch = IMG.augment(x[i:i+batch_size])
         t_batch = t[i:i+batch_size]
-        output = model.out.eval(feed_dict={model.x: x_batch}, session=sess)
+        output = model.out.eval(feed_dict={model.x: x_batch, model.is_training: False}, session=sess)
         prediction = np.concatenate([prediction, np.argmax(output, 1)])
         answer = np.concatenate([answer, t_batch])
         correct_prediction = np.equal(prediction, answer)
     accuracy = np.mean(correct_prediction)
     return accuracy
+
 
 if __name__ == '__main__':
     train()
