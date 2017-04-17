@@ -49,14 +49,18 @@ class VGG19:
                 x = batch_normalize(x, is_training)
                 x = lrelu(x)
             with tf.variable_scope('conv3c'):
-                x = conv_layer(x, [3, 3, 256, 512], 1, self.trainable)
+                x = conv_layer(x, [3, 3, 256, 256], 1, self.trainable)
+                x = batch_normalize(x, is_training)
+                x = lrelu(x)
+            with tf.variable_scope('conv3d'):
+                x = conv_layer(x, [3, 3, 256, 256], 1, self.trainable)
                 x = batch_normalize(x, is_training)
                 x = lrelu(x)
             phi.append(x)
 
             x = max_pooling_layer(x, 2, 2)
             with tf.variable_scope('conv4a'):
-                x = conv_layer(x, [3, 3, 512, 512], 1, self.trainable)
+                x = conv_layer(x, [3, 3, 256, 512], 1, self.trainable)
                 x = batch_normalize(x, is_training)
                 x = lrelu(x)
             with tf.variable_scope('conv4b'):
@@ -64,6 +68,10 @@ class VGG19:
                 x = batch_normalize(x, is_training)
                 x = lrelu(x)
             with tf.variable_scope('conv4c'):
+                x = conv_layer(x, [3, 3, 512, 512], 1, self.trainable)
+                x = batch_normalize(x, is_training)
+                x = lrelu(x)
+            with tf.variable_scope('conv4d'):
                 x = conv_layer(x, [3, 3, 512, 512], 1, self.trainable)
                 x = batch_normalize(x, is_training)
                 x = lrelu(x)
@@ -82,23 +90,13 @@ class VGG19:
                 x = conv_layer(x, [3, 3, 512, 512], 1, self.trainable)
                 x = batch_normalize(x, is_training)
                 x = lrelu(x)
+            with tf.variable_scope('conv5d'):
+                x = conv_layer(x, [3, 3, 512, 512], 1, self.trainable)
+                x = batch_normalize(x, is_training)
+                x = lrelu(x)
             phi.append(x)
 
             x = max_pooling_layer(x, 2, 2)
-            with tf.variable_scope('conv6a'):
-                x = conv_layer(x, [3, 3, 512, 512], 1, self.trainable)
-                x = batch_normalize(x, is_training)
-                x = lrelu(x)
-            with tf.variable_scope('conv6b'):
-                x = conv_layer(x, [3, 3, 512, 512], 1, self.trainable)
-                x = batch_normalize(x, is_training)
-                x = lrelu(x)
-            with tf.variable_scope('conv6c'):
-                x = conv_layer(x, [3, 3, 512, 512], 1, self.trainable)
-                x = batch_normalize(x, is_training)
-                x = lrelu(x)
-            phi.append(x)
-
             x = flatten_layer(x)
             with tf.variable_scope('fc1'):
                 x = full_connection_layer(x, 4096, self.trainable)
