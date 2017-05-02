@@ -1,6 +1,4 @@
-vgg19/cifar_100/raw/*
-vgg19/cifar_100/train/*
-vgg19/cifar_100/test/*
+vgg19/cifar/data/*
 vgg19/backup/*
 src/lfw/raw/*
 src/lfw/train/*
