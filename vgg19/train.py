@@ -6,7 +6,6 @@ import sys
 sys.path.append('../utils')
 from vgg19 import VGG19
 import load
-import cifar_load
 import augment
 
 learning_rate = 1e-3
@@ -32,12 +31,7 @@ def train(cifar):
         saver.restore(sess, 'backup/latest')
 
     # Load the dataset
-    if cifar is not None:
-        print('Cifar-100')
-        x_train, t_train, x_test, t_test = cifar_load.load()
-    else:
-        print('ImageNet')
-        x_train, t_train, x_test, t_test = load.load()
+    x_train, t_train, x_test, t_test = load.load()
 
     # Train
     while True:
@@ -74,8 +68,5 @@ def train(cifar):
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--cifar', const=1, nargs='?')
-    args = parser.parse_args()
-    train(args.cifar)
+    train()
 
