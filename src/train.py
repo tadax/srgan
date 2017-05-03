@@ -46,8 +46,7 @@ def train():
     while True:
         epoch = int(sess.run(global_step) / n_iter / 2) + 1
         print('epoch:', epoch)
-        perm = np.random.permutation(len(x_train))
-        x_train = x_train[perm]
+        np.random.shuffle(x_train)
         for i in tqdm(range(n_iter)):
             x_batch = normalize(x_train[i*batch_size:(i+1)*batch_size])
             sess.run(
