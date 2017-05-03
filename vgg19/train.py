@@ -1,20 +1,21 @@
-from tqdm import tqdm
 import numpy as np
 import tensorflow as tf
-from vgg19 import VGG19
-
+from tqdm import tqdm
 import sys
 sys.path.append('../utils')
-from load import load
-from augment import IMG
-IMG = IMG(normalized=True, flip=True, brightness=False, cropping=False, blur=False)
+from vgg19 import VGG19
+import cifar_load
+import augment
 
-learning_rate = 1e-4
+learning_rate = 1e-3
 batch_size = 128
-img_dim = 96
 
 def train():
-    model = VGG19(True)
+    x = tf.placeholder(tf.float32, [None, 96, 96, 3])
+    t = tf.placeholder(tf.int32, [None])
+    is_training = tf.placeholder(tf.bool, [])
+
+    model = VGG19(x, t, is_training)
     sess = tf.Session()
     with tf.variable_scope('vgg19'):
         global_step = tf.Variable(0, name='global_step', trainable=False)
@@ -23,47 +24,46 @@ def train():
     init = tf.global_variables_initializer()
     sess.run(init)
 
+    # Restore the latest model
     if tf.train.get_checkpoint_state('backup/'):
         saver = tf.train.Saver()
         saver.restore(sess, 'backup/latest')
 
-    x_train, t_train = load('./cifar_100/train')
-    x_test, t_test = load('./cifar_100/test')
+    # Load the data
+    x_train, t_train, x_test, t_test = cifar_load.load()
 
-    n_iter = int(np.ceil(len(x_train) / batch_size))
+    # Train
     while True:
-        epoch = int(sess.run(global_step) / n_iter)
-        print('----- epoch {} -----'.format(epoch+1))
-        sum_loss = 0
+        epoch = int(sess.run(global_step) / np.ceil(len(x_train)/batch_size)) + 1
+        print('epoch:', epoch)
         perm = np.random.permutation(len(x_train))
         x_train = x_train[perm]
         t_train = t_train[perm]
+        sum_loss_value = 0
         for i in tqdm(range(0, len(x_train), batch_size)):
-            x_batch = IMG.augment(x_train[i:i+batch_size])
+            x_batch = augment.augment(x_train[i:i+batch_size])
             t_batch = t_train[i:i+batch_size]
-            _, loss_value = sess.run([train_op, model.loss], feed_dict={model.x: x_batch, model.t: t_batch, model.is_training: True})
-            sum_loss += loss_value
-        print('loss: {}'.format(sum_loss))
+            _, loss_value = sess.run(
+                [train_op, model.loss],
+                feed_dict={x: x_batch, t: t_batch, is_training: True})
+            sum_loss_value += loss_value
+        print('loss:', sum_loss_value)
 
         saver = tf.train.Saver()
         saver.save(sess, 'backup/latest', write_meta_graph=False)
 
-        test_accuracy = validate(x_test, t_test, model, sess)
-        print('accuracy: {} %'.format(test_accuracy * 100))
-
-
-def validate(x, t, model, sess):
-    prediction = np.array([])
-    answer = np.array([])
-    for i in range(0, len(x), batch_size):
-        x_batch = IMG.augment(x[i:i+batch_size])
-        t_batch = t[i:i+batch_size]
-        output = model.out.eval(feed_dict={model.x: x_batch, model.is_training: False}, session=sess)
-        prediction = np.concatenate([prediction, np.argmax(output, 1)])
-        answer = np.concatenate([answer, t_batch])
-        correct_prediction = np.equal(prediction, answer)
-    accuracy = np.mean(correct_prediction)
-    return accuracy
+        prediction = np.array([])
+        answer = np.array([])
+        for i in range(0, len(x_test), batch_size):
+            x_batch = augment.augment(x_test[i:i+batch_size])
+            t_batch = t_test[i:i+batch_size]
+            output = model.out.eval(
+                feed_dict={x: x_batch, is_training: False}, session=sess)
+            prediction = np.concatenate([prediction, np.argmax(output, 1)])
+            answer = np.concatenate([answer, t_batch])
+            correct_prediction = np.equal(prediction, answer)
+        accuracy = np.mean(correct_prediction)
+        print('accuracy:', accuracy)
 
 
 if __name__ == '__main__':

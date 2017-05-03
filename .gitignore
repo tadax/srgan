@@ -1,10 +1,7 @@
 vgg19/cifar/data/*
 vgg19/backup/*
-src/lfw/raw/*
-src/lfw/train/*
-src/lfw/test/*
+src/lfw/data/*
 src/backup/*
 src/result/*
-class.txt
 __pycache__
 !.gitkeep
