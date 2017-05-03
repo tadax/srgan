@@ -132,6 +132,7 @@ class SRGAN:
                     content_loss = l2_loss
                 else:
                     content_loss = content_loss + l2_loss
+            #content_loss = tf.nn.l2_loss(x_phi[4] - imitation_phi[4])
             return tf.reduce_mean(content_loss)
 
         def inference_adversarial_loss(real_output, fake_output):

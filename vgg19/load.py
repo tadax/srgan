@@ -1,17 +1,27 @@
+import numpy as np
+import cv2
 import os
 import glob
-import cv2
-import numpy as np
+from tqdm import tqdm
 
-def load(dir_):
-    x = []; t = []
-    paths = glob.glob(os.path.join(dir_, '*'))
-    for path in paths:
-        bgr_img = cv2.imread(path)
-        rbg_img = cv2.cvtColor(bgr_img, cv2.COLOR_BGR2RGB)
-        img = np.array(rbg_img) / 127.5 - 1
-        label = os.path.basename(path).split('_')[0]
-        x.append(img)
-        t.append(int(label))
-    return (np.array(x), np.array(t))
+def _load(src):
+    paths = glob.glob(src)
+    x = None
+    t = []
+    for path in tqdm(paths):
+        id_ = int(os.path.basename(path).split('.')[0])
+        c = np.load(path)
+        l = [id_ for _ in range(c.shape[0])]
+        if x is None:
+            x = c
+        else:
+            x = np.concatenate((x, c), 0)
+        t += l
+    t = np.array(t)
+    return [x, t]
+
+def load():
+    x_train, t_train = _load('./imagenet/data/npy/train/*')
+    x_test, t_test = _load('./imagenet/data/npy/test/*')
+    return x_train, t_train, x_test, t_test
 

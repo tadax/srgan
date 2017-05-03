@@ -19,7 +19,7 @@ def download():
         for chunk in r.iter_content(chunk_size=1024):
             f.write(chunk)
             pbar.update(len(chunk))
-        pbar.close()
+    pbar.close()
 
     tar = tarfile.open(path, 'r')
     for item in tar:

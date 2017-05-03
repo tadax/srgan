@@ -1,16 +1,18 @@
 import numpy as np
 import tensorflow as tf
 from tqdm import tqdm
+import argparse
 import sys
 sys.path.append('../utils')
 from vgg19 import VGG19
+import load
 import cifar_load
 import augment
 
 learning_rate = 1e-3
 batch_size = 128
 
-def train():
+def train(cifar):
     x = tf.placeholder(tf.float32, [None, 96, 96, 3])
     t = tf.placeholder(tf.int32, [None])
     is_training = tf.placeholder(tf.bool, [])
@@ -29,8 +31,13 @@ def train():
         saver = tf.train.Saver()
         saver.restore(sess, 'backup/latest')
 
-    # Load the data
-    x_train, t_train, x_test, t_test = cifar_load.load()
+    # Load the dataset
+    if cifar is not None:
+        print('Cifar-100')
+        x_train, t_train, x_test, t_test = cifar_load.load()
+    else:
+        print('ImageNet')
+        x_train, t_train, x_test, t_test = load.load()
 
     # Train
     while True:
@@ -67,5 +74,8 @@ def train():
 
 
 if __name__ == '__main__':
-    train()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--cifar', const=1, nargs='?')
+    args = parser.parse_args()
+    train(args.cifar)
 

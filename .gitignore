@@ -1,4 +1,5 @@
 vgg19/cifar/data/*
+vgg19/imagenet/data/*
 vgg19/backup/*
 src/lfw/data/*
 src/backup/*
