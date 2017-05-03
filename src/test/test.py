@@ -42,5 +42,5 @@ for j, img in enumerate([mos[0], fake[0], input_[0]]):
     plt.gca().get_xaxis().set_ticks_position('none')
     plt.gca().get_yaxis().set_ticks_position('none')
     plt.xlabel(labels[j])
-plt.show()
+plt.savefig('result.jpg')
 
