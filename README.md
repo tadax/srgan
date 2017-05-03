@@ -1,8 +1,8 @@
 # Super Resolution using Generative Adversarial Network (SRGAN)
 
 This is an implementation of the SRGAN model proposed in the paper
-[Photo-Realistic Single Image Super-Resolution Using a Generative Adversarial Network](
-https://arxiv.org/abs/1609.04802)
+([Photo-Realistic Single Image Super-Resolution Using a Generative Adversarial Network](
+https://arxiv.org/abs/1609.04802))
 with TensorFlow.
 
 # Requirements
@@ -55,8 +55,10 @@ $ python train.py
 The result will be stored in "src/result".
 
 ## Model files:
-- [srgan_model.tar.gz](https://drive.google.com/open?id=0B-s6ok7B0V9vbEtYQzA1Ylphb2c)
 - [vgg19_model.tar.gz](https://drive.google.com/open?id=0B-s6ok7B0V9vcXNfSzdjZ0lCc0k)
+- [srgan_model.tar.gz](https://drive.google.com/open?id=0B-s6ok7B0V9vbEtYQzA1Ylphb2c)
+
+
 
 # Results
 
