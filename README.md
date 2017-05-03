@@ -36,10 +36,6 @@ $ python train.py
 The pretrained VGG-19 model will be stored in "vgg19/model".
 
 
-### Model file:
-- [vgg19_model.tar.gz](https://drive.google.com/open?id=0B-s6ok7B0V9vcXNfSzdjZ0lCc0k)
-
-
 ## II. Train the SRGAN (ResNet-Generator and Discriminator) model
 
 Download the LFW dataset and preprocess them with:
@@ -58,8 +54,9 @@ $ python train.py
 
 The result will be stored in "src/result".
 
-### Model file:
+## Model files:
 - [srgan_model.tar.gz](https://drive.google.com/open?id=0B-s6ok7B0V9vbEtYQzA1Ylphb2c)
+- [vgg19_model.tar.gz](https://drive.google.com/open?id=0B-s6ok7B0V9vcXNfSzdjZ0lCc0k)
 
 # Results
 
