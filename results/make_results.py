@@ -1,7 +1,7 @@
 import cv2
 import scipy.misc
 
-for i in range(1, 33):
+for i in range(1, 17):
     i = "{0:09d}".format(i)
     path = "../src/result/{}/000000020.jpg".format(i)
     x = cv2.imread(path)
