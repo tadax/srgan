@@ -42,7 +42,7 @@ def train():
     x_train, x_test = load.load()
 
     # Train the SRGAN model
-    n_iter = int(np.ceil(len(x_train) / batch_size))
+    n_iter = int(len(x_train) / batch_size)
     while True:
         epoch = int(sess.run(global_step) / n_iter / 2) + 1
         print('epoch:', epoch)
